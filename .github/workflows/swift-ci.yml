@@ -8,38 +8,38 @@ on:
 
 permissions:
   contents: read
- 
+
 # Cancel superseded runs of the same branch / PR
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-   macos:
+  macos:
     name: macOS (Xcode 27)
     # switch to a `macos-latest` label once an image with Xcode 27 as the default becomes generally available.
     runs-on: xcode-27
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v5
- 
+
       - name: Toolchain info
         run: |
           xcodebuild -version
           swift --version
- 
+
       - uses: actions/cache@v4
         with:
           path: .build
           key: macos-spm-${{ hashFiles('Package.swift', 'Package.resolved') }}
           restore-keys: macos-spm-
- 
+
       - name: Build
         run: swift build --build-tests
- 
+
       - name: Test
         run: swift test --skip-build
- 
+
   linux:
     name: Linux (${{ matrix.image }}, ${{ matrix.runner }})
     runs-on: ${{ matrix.runner }}
@@ -56,19 +56,19 @@ jobs:
           - ubuntu-24.04-arm   # arm64, same platform as test-on-linux.sh
     steps:
       - uses: actions/checkout@v5
- 
+
       - name: Toolchain info
         run: swift --version
- 
+
       - uses: actions/cache@v4
         with:
           path: .build
           key: linux-${{ matrix.image }}-${{ matrix.runner }}-spm-${{ hashFiles('Package.swift', 'Package.resolved') }}
           restore-keys: linux-${{ matrix.image }}-${{ matrix.runner }}-spm-
- 
+
       - name: Build
         run: swift build --build-tests
- 
+
       - name: Test
         run: swift test --skip-build
- 
+
