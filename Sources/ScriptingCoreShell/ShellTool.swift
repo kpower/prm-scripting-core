@@ -9,14 +9,14 @@ public struct ShellTool: Sendable {
   public static let bash = Self(toolName: "bash", location: .bin)
   public static let zsh = Self(toolName: "zsh", location: .bin)
 
-  public var fileUrl: URL
+  public var executableURL: URL
 
-  public init(fileUrl: URL) {
-    self.fileUrl = fileUrl
+  public init(executableURL: URL) {
+    self.executableURL = executableURL
   }
 
   public init(toolName: String, location: ShellToolLocation) {
-    fileUrl = location.fileUrl(toolName: toolName)
+    executableURL = location.fileUrl(toolName: toolName)
   }
 }
 
@@ -27,7 +27,7 @@ extension [ShellTool] {
     guard let shellPath = ProcessInfo.processInfo.environment["SHELL"] else { return nil }
 
     return first {
-      let toolName = $0.fileUrl.lastPathComponent
+      let toolName = $0.executableURL.lastPathComponent
       return shellPath.hasSuffix("/" + toolName) || shellPath == toolName
     }
   }
