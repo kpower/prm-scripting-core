@@ -7,8 +7,9 @@ import Testing
 
 struct ShellTests {
   @Test func capturesStandardOutputAndErrorSeparately() throws {
-    let shell = Shell(logger: Logger(label: "ShellTests"))
-    let result = try shell.perform(command: ShellCommand("printf stdout; printf stderr >&2"))
+    let logger = Logger(label: "ShellTests")
+    let command = ShellCommand.makeAutoShInteractive("printf stdout; printf stderr >&2")
+    let result = try command.run(logger: logger)
 
     #expect(result.terminationStatus == 0)
     #expect(String(decoding: result.output, as: UTF8.self) == "stdout")
@@ -22,11 +23,12 @@ struct ShellTests {
         events.withLock { $0.append(event) }
       }
     }
-    let shell = Shell(logger: logger)
-    let command = ShellCommand("printf 'stdout failure\\n'; printf 'stderr failure\\n' >&2; exit 1")
+    let command = ShellCommand.makeAutoShInteractive(
+      "printf 'stdout failure\\n'; printf 'stderr failure\\n' >&2; exit 1"
+    )
 
     #expect(throws: (any Error).self) {
-      try shell.perform(command: command)
+      try command.run(logger: logger)
     }
 
     let metadata = try #require(events.withLock { $0.last?.metadata })

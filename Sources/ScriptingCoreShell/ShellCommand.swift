@@ -3,22 +3,46 @@
 public import Foundation
 
 public struct ShellCommand: CustomStringConvertible, Sendable {
-  public var dir: URL?
+  public var arguments: [String]
+  public var currentDirectoryURL: URL?
   public var throwOnFailure: Bool
-  public var toolCommand: String
+  public var tool: ShellTool
 
   public var description: String {
-    toolCommand
-      + (dir.map { "-- '\($0.path)'" } ?? "")
+    tool.executableURL.path() + " " + arguments.joined(separator: " ")
+      + (currentDirectoryURL.map { "-- '\($0.path())'" } ?? "")
+  }
+
+  /// Makes a command that runs `command` in interactive sh mode (see `bash -c` help).
+  ///
+  /// - Parameters:
+  ///   - command: shell script text passed to `-c`.
+  ///   - positionalParameters: extra arguments, assigned to the positional parameters of command, starting with `$0`.
+  ///   - currentDirectoryURL: working directory for the process, `nil` inherits the current one.
+  ///   - throwOnFailure: whether `run` throws when the command exits with a non-zero status.
+  public static func makeAutoShInteractive(
+    _ command: String,
+    positionalParameters: [String] = [],
+    currentDirectoryURL: URL? = nil,
+    throwOnFailure: Bool = true,
+  ) -> Self {
+    ShellCommand(
+      tool: .autoSh,
+      arguments: [ "-c", command ] + positionalParameters,
+      currentDirectoryURL: currentDirectoryURL,
+      throwOnFailure: throwOnFailure
+    )
   }
 
   public init(
-    _ toolCommand: String,
-    dir: URL? = nil,
-    throwOnFailure: Bool = true
+    tool: ShellTool = .autoSh,
+    arguments: [String] = [],
+    currentDirectoryURL: URL? = nil,
+    throwOnFailure: Bool = true,
   ) {
-    self.dir = dir
+    self.arguments = arguments
+    self.currentDirectoryURL = currentDirectoryURL
     self.throwOnFailure = throwOnFailure
-    self.toolCommand = toolCommand
+    self.tool = tool
   }
 }
