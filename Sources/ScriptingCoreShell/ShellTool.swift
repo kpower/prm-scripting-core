@@ -2,26 +2,33 @@
 
 public import Foundation
 
-public enum ShellTool: CaseIterable, Sendable {
-  case bash
-  case zsh
-
+public struct ShellTool: Sendable {
   /// fallback to bash as most common
-  public static let autodetected = detect() ?? .bash
+  public static let autoSh = [ .zsh, .bash ].firstFromEnvironment() ?? .bash
 
-  public var fileUrl: URL {
-    URL(filePath: "/bin/" + toolName, directoryHint: .notDirectory)
+  public static let bash = Self(toolName: "bash", location: .bin)
+  public static let zsh = Self(toolName: "zsh", location: .bin)
+
+  public var fileUrl: URL
+
+  public init(fileUrl: URL) {
+    self.fileUrl = fileUrl
   }
 
-  private var toolName: String {
-    switch self {
-    case .bash: "bash"
-    case .zsh:  "zsh"
-    }
+  public init(toolName: String, location: ShellToolLocation) {
+    fileUrl = location.fileUrl(toolName: toolName)
   }
+}
 
-  private static func detect() -> Self? {
+// MARK: -
+
+extension [ShellTool] {
+  fileprivate func firstFromEnvironment() -> Element? {
     guard let shellPath = ProcessInfo.processInfo.environment["SHELL"] else { return nil }
-    return allCases.first { shellPath.contains($0.toolName) }
+
+    return first {
+      let toolName = $0.fileUrl.lastPathComponent
+      return shellPath.hasSuffix("/" + toolName) || shellPath == toolName
+    }
   }
 }

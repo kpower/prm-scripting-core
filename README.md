@@ -1,4 +1,4 @@
-# PrankMindScriptingCore
+# PrankMind ScriptingCore
 
 A set of small Swift libraries for writing command-line tools and automation scripts: shell execution, HTTP requests with retries, JSON handling, console I/O, logging helpers and assorted standard-library extensions.
 
