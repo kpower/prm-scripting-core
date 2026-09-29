@@ -7,7 +7,7 @@ public struct Shell: Sendable {
   var logger: Logger
   var tool: ShellTool  
 
-  public init(logger: Logger, tool: ShellTool = .autodetected) {
+  public init(logger: Logger, tool: ShellTool = .autoSh) {
     self.logger = logger
     self.tool = tool
   }

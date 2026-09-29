@@ -4,7 +4,7 @@
 import PackageDescription
 
 let package = Package(
-  name: "PrankMindScriptingCore",
+  name: "scripting-core",
   platforms: [
     .iOS(.v18),
     .macOS(.v15),
