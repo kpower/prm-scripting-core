@@ -12,7 +12,7 @@ Add the package to your `Package.swift`:
 
 ```swift
 dependencies: [
-  .package(url: "https://github.com/kpower/prm-scripting-core.git", branch: "trunk"),
+  .package(url: "https://github.com/kpower/prm-scripting-core.git", from: "0.1.0"),
 ],
 targets: [
   .executableTarget(
